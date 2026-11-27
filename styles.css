@@ -16,3 +16,10 @@
 /* Formulaire d'enregistrement des résultats */
 #matchForm select{width:100%;padding:13px;background:#090d19;border:1px solid var(--line);border-radius:4px;color:white;font:12px Inter;outline:none}
 #matchForm select:focus{border-color:var(--purple)}
+
+ 
+/* Inscriptions au Cyber Strike Cup */
+.tournament-count{font-size:10px!important;color:var(--cyan)!important;font-weight:800;margin:8px 0!important;min-height:0!important}
+.tournament-feedback{font-size:10px!important;color:var(--cyan)!important;line-height:1.5;margin:8px 0 0!important;min-height:0!important}
+.tournament-feedback.error{color:#ff8b9b!important}
+.tournament-join:disabled{opacity:.55;cursor:not-allowed}
