@@ -184,3 +184,40 @@ on conflict (slug) do update set
   status = excluded.status,
   description = excluded.description,
   prize_label = excluded.prize_label;
+
+
+-- Composition des équipes du Cyber Strike Cup : quatre équipiers en plus du capitaine
+create table if not exists public.tournament_team_members (
+  id uuid primary key default gen_random_uuid(),
+  registration_id uuid not null references public.tournament_registrations(id) on delete cascade,
+  slot integer not null check (slot between 1 and 4),
+  player_name text not null check (char_length(player_name) between 2 and 24),
+  created_at timestamptz not null default now(),
+  unique (registration_id, slot),
+  unique (registration_id, player_name)
+);
+
+alter table public.tournament_team_members enable row level security;
+
+drop policy if exists "Les compositions sont visibles par tous" on public.tournament_team_members;
+create policy "Les compositions sont visibles par tous"
+  on public.tournament_team_members for select using (true);
+
+drop policy if exists "Le capitaine gère sa composition" on public.tournament_team_members;
+create policy "Le capitaine gère sa composition"
+  on public.tournament_team_members for all to authenticated
+  using (
+    exists (
+      select 1 from public.tournament_registrations r
+      where r.id = registration_id and r.player_id = auth.uid()
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.tournament_registrations r
+      where r.id = registration_id and r.player_id = auth.uid()
+    )
+  );
+
+grant select on public.tournament_team_members to anon, authenticated;
+grant insert, update, delete on public.tournament_team_members to authenticated;
