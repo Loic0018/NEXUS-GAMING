@@ -120,7 +120,7 @@ document.getElementById("signOut").addEventListener("click", async () => {
   if (error) { showMessage(error.message,true); return; }
   setMode("login"); renderProfile(null); showMessage("Tu es déconnecté.");
 });
-if(supabaseClient){supabaseClient.auth.onAuthStateChange((_event,session)=>{if(dialog.open&&!session?.user)renderProfile(null);loadCyberCupRegistrations();});loadLiveRanking();}
+if(supabaseClient){supabaseClient.auth.onAuthStateChange((_event,session)=>{if(dialog.open&&!session?.user)renderProfile(null);loadCyberCupRegistrations();loadAdminDashboard();});loadLiveRanking();}
 document.getElementById("matchForm").addEventListener("submit", async event => {
   event.preventDefault();
   const message = document.getElementById("profileMessage");
@@ -297,4 +297,66 @@ document.getElementById("teamRosterForm").addEventListener("submit", async event
   } finally {
     submit.disabled = false;
   }
+});
+
+
+// Tableau de bord administrateur NEXUS
+const adminPanel = document.getElementById("nexusAdmin");
+const adminFeedback = document.getElementById("adminFeedback");
+let adminTournamentId = null;
+async function loadAdminDashboard() {
+  if (!supabaseClient || !adminPanel) return;
+  adminPanel.hidden = true;
+  const {data:{user},error:userError} = await supabaseClient.auth.getUser();
+  if (userError || !user) return;
+  const {data:role,error:roleError} = await supabaseClient.from("nexus_admins").select("user_id").eq("user_id",user.id).maybeSingle();
+  if (roleError || !role) return;
+  adminPanel.hidden = false;
+  const {data:tournament,error:tournamentError} = await supabaseClient.from("tournaments").select("id,name,status").eq("slug","cyber-strike-cup").single();
+  if (tournamentError) { adminFeedback.textContent = "Erreur tournoi : " + tournamentError.message; return; }
+  adminTournamentId = tournament.id;
+  document.getElementById("adminTournamentName").textContent = tournament.name;
+  document.getElementById("adminTournamentStatus").value = tournament.status;
+  const {data:registrations,error:registrationError} = await supabaseClient.from("tournament_registrations").select("id,player_id,team_name,registered_at").eq("tournament_id",tournament.id).order("registered_at",{ascending:true});
+  if (registrationError) { adminFeedback.textContent = "Erreur inscriptions : " + registrationError.message; return; }
+  document.getElementById("adminSummary").textContent = registrations.length + " équipe(s) inscrite(s)";
+  const ids = registrations.map(item=>item.player_id);
+  let profiles = [];
+  if (ids.length) {
+    const {data,error} = await supabaseClient.from("player_profiles").select("id,username").in("id",ids);
+    if (error) { adminFeedback.textContent = "Erreur profils : " + error.message; return; }
+    profiles = data || [];
+  }
+  const registrationIds = registrations.map(item=>item.id);
+  let members = [];
+  if (registrationIds.length) {
+    const {data,error} = await supabaseClient.from("tournament_team_members").select("registration_id,slot,player_name").in("registration_id",registrationIds).order("slot");
+    if (error) { adminFeedback.textContent = "Erreur compositions : " + error.message; return; }
+    members = data || [];
+  }
+  const list = document.getElementById("adminTeamList");
+  list.replaceChildren();
+  if (!registrations.length) { list.innerHTML = '<p class="ranking-empty">Aucune équipe inscrite pour le moment.</p>'; return; }
+  registrations.forEach(registration=>{
+    const card=document.createElement("article");card.className="admin-team-card";
+    const title=document.createElement("h4");title.textContent=registration.team_name;
+    const captain=document.createElement("p");captain.textContent="Capitaine : "+(profiles.find(p=>p.id===registration.player_id)?.username || "Joueur NEXUS");
+    const roster=document.createElement("p");roster.textContent="Composition : "+members.filter(m=>m.registration_id===registration.id).sort((a,b)=>a.slot-b.slot).map(m=>m.player_name).join(" · ");
+    const date=document.createElement("small");date.textContent="Inscrite le "+new Date(registration.registered_at).toLocaleDateString("fr-FR");
+    card.append(title,captain,roster,date);list.append(card);
+  });
+  adminFeedback.textContent = "";
+}
+document.getElementById("adminSaveStatus")?.addEventListener("click",async()=>{
+  if(!adminTournamentId)return;
+  const button=document.getElementById("adminSaveStatus");
+  button.disabled=true;adminFeedback.textContent="Mise à jour du statut…";
+  try{
+    const status=document.getElementById("adminTournamentStatus").value;
+    const {error}=await supabaseClient.from("tournaments").update({status}).eq("id",adminTournamentId);
+    if(error)throw error;
+    adminFeedback.textContent="Statut du tournoi mis à jour.";
+    await loadCyberCupRegistrations();
+  }catch(error){adminFeedback.textContent="Erreur : "+error.message;}
+  finally{button.disabled=false;}
 });
