@@ -38,3 +38,9 @@ document.getElementById("menuToggle").addEventListener("click", () => {
 document.querySelectorAll(".main-nav a").forEach(link => {
   link.addEventListener("click", () => document.querySelector(".main-nav").classList.remove("open"));
 });
+
+document.querySelectorAll(".tournament-join").forEach(button => {
+  button.addEventListener("click", () => {
+    alert("Les inscriptions aux tournois NEXUS seront bientôt disponibles. Reste connecté !");
+  });
+});
