@@ -121,6 +121,31 @@ document.getElementById("signOut").addEventListener("click", async () => {
   setMode("login"); renderProfile(null); showMessage("Tu es déconnecté.");
 });
 if(supabaseClient){supabaseClient.auth.onAuthStateChange((_event,session)=>{if(dialog.open&&!session?.user)renderProfile(null);});loadLiveRanking();}
+document.getElementById("matchForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  const message = document.getElementById("profileMessage");
+  const submit = document.getElementById("matchSubmit");
+  submit.disabled = true;
+  message.textContent = "Enregistrement du résultat…";
+  message.classList.remove("error");
+  try {
+    const {data:{user}, error:userError} = await supabaseClient.auth.getUser();
+    if (userError) throw userError;
+    if (!user) throw new Error("Reconnecte-toi pour enregistrer une partie.");
+    const game_name = document.getElementById("matchGame").value;
+    const result = document.getElementById("matchResult").value;
+    const {error} = await supabaseClient.from("game_history").insert({player_id:user.id, game_name, result});
+    if (error) throw error;
+    await loadPlayerDashboard(user);
+    await loadLiveRanking();
+    message.textContent = "Résultat enregistré ! Tes XP et tes statistiques sont actualisés.";
+  } catch(error) {
+    message.textContent = "Erreur : " + (error.message || "impossible d'enregistrer le résultat.");
+    message.classList.add("error");
+  } finally {
+    submit.disabled = false;
+  }
+});
 document.getElementById("profileEditForm").addEventListener("submit",async event=>{event.preventDefault();const {data:{user}}=await supabaseClient.auth.getUser();if(!user)return;const username=document.getElementById("profileUsername").value.trim();const message=document.getElementById("profileMessage");if(username.length<3||username.length>20){message.textContent="Le pseudo doit contenir entre 3 et 20 caractères.";return;}const {error}=await supabaseClient.from("player_profiles").update({username}).eq("id",user.id);if(error){message.textContent=error.message;return;}await supabaseClient.auth.updateUser({data:{username}});document.getElementById("profileName").textContent=username;document.getElementById("profileAvatarFallback").textContent=username.slice(0,1).toUpperCase();message.textContent="Pseudo mis à jour !";loadLiveRanking();});
 document.getElementById("avatarInput").addEventListener("change", async event => {
   const file = event.target.files?.[0];
