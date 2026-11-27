@@ -122,7 +122,41 @@ document.getElementById("signOut").addEventListener("click", async () => {
 });
 if(supabaseClient){supabaseClient.auth.onAuthStateChange((_event,session)=>{if(dialog.open&&!session?.user)renderProfile(null);});loadLiveRanking();}
 document.getElementById("profileEditForm").addEventListener("submit",async event=>{event.preventDefault();const {data:{user}}=await supabaseClient.auth.getUser();if(!user)return;const username=document.getElementById("profileUsername").value.trim();const message=document.getElementById("profileMessage");if(username.length<3||username.length>20){message.textContent="Le pseudo doit contenir entre 3 et 20 caractères.";return;}const {error}=await supabaseClient.from("player_profiles").update({username}).eq("id",user.id);if(error){message.textContent=error.message;return;}await supabaseClient.auth.updateUser({data:{username}});document.getElementById("profileName").textContent=username;document.getElementById("profileAvatarFallback").textContent=username.slice(0,1).toUpperCase();message.textContent="Pseudo mis à jour !";loadLiveRanking();});
-document.getElementById("avatarInput").addEventListener("change",async event=>{const file=event.target.files?.[0];if(!file)return;const message=document.getElementById("profileMessage");if(!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>2*1024*1024){message.textContent="Choisis une image JPG, PNG ou WebP de 2 Mo maximum.";return;}const {data:{user}}=await supabaseClient.auth.getUser();const ext=file.name.split(".").pop().toLowerCase();const path=user.id+"/avatar."+ext;const {error:uploadError}=await supabaseClient.storage.from("avatars").upload(path,file,{upsert:true,contentType:file.type});if(uploadError){message.textContent=uploadError.message;return;}const {data}=supabaseClient.storage.from("avatars").getPublicUrl(path);const url=data.publicUrl+"?v="+Date.now();const {error:updateError}=await supabaseClient.from("player_profiles").update({avatar_url:url}).eq("id",user.id);if(updateError){message.textContent=updateError.message;return;}await loadPlayerDashboard(user);message.textContent="Photo de profil mise à jour !";loadLiveRanking();});
+document.getElementById("avatarInput").addEventListener("change", async event => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  const message = document.getElementById("profileMessage");
+  message.textContent = "Envoi de la photo en cours…";
+  message.classList.remove("error");
+  try {
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 2 * 1024 * 1024) {
+      throw new Error("Choisis une image JPG, PNG ou WebP de 2 Mo maximum.");
+    }
+    const {data: {user}, error: userError} = await supabaseClient.auth.getUser();
+    if (userError) throw userError;
+    if (!user) throw new Error("Reconnecte-toi avant de changer ta photo.");
+    const ext = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
+    const path = user.id + "/avatar." + ext;
+    const {error: uploadError} = await supabaseClient.storage.from("avatars").upload(path, file, {upsert:true, contentType:file.type});
+    if (uploadError) throw uploadError;
+    const {data} = supabaseClient.storage.from("avatars").getPublicUrl(path);
+    const url = data.publicUrl + "?v=" + Date.now();
+    const {error:updateError} = await supabaseClient.from("player_profiles").update({avatar_url:url}).eq("id",user.id);
+    if (updateError) throw updateError;
+    const photo = document.getElementById("profileAvatar");
+    const fallback = document.getElementById("profileAvatarFallback");
+    photo.onload = () => { photo.hidden = false; fallback.hidden = true; };
+    photo.onerror = () => { message.textContent = "Photo envoyée, mais impossible de l'afficher. Vérifions le stockage Supabase."; };
+    photo.src = url;
+    message.textContent = "Photo envoyée !";
+    loadLiveRanking();
+  } catch (error) {
+    message.textContent = "Erreur photo : " + (error.message || "réessaie.");
+    message.classList.add("error");
+  } finally {
+    event.target.value = "";
+  }
+});
 
 document.getElementById("menuToggle").addEventListener("click", () => document.querySelector(".main-nav").classList.toggle("open"));
 document.querySelectorAll(".main-nav a").forEach(link => link.addEventListener("click", () => document.querySelector(".main-nav").classList.remove("open")));
