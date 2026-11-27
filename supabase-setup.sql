@@ -121,3 +121,66 @@ for each row execute function public.set_nexus_match_xp();
 
 grant select, insert on table public.game_history to authenticated;
 grant select on table public.player_profiles to anon, authenticated;
+ 
+-- Tournois NEXUS : catalogue public et inscriptions des joueurs
+create table if not exists public.tournaments (
+  id uuid primary key default gen_random_uuid(),
+  slug text unique not null,
+  name text not null,
+  game_name text not null,
+  format text not null,
+  team_size integer not null default 1 check (team_size >= 1),
+  status text not null default 'upcoming' check (status in ('upcoming','open','closed','completed')),
+  description text not null default '',
+  prize_label text not null default 'Récompense à définir',
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.tournament_registrations (
+  id uuid primary key default gen_random_uuid(),
+  tournament_id uuid not null references public.tournaments(id) on delete cascade,
+  player_id uuid not null references auth.users(id) on delete cascade,
+  team_name text not null check (char_length(team_name) between 2 and 40),
+  registered_at timestamptz not null default now(),
+  unique (tournament_id, player_id)
+);
+
+alter table public.tournaments enable row level security;
+alter table public.tournament_registrations enable row level security;
+
+drop policy if exists "Les tournois sont visibles par tous" on public.tournaments;
+create policy "Les tournois sont visibles par tous"
+  on public.tournaments for select using (true);
+
+drop policy if exists "Les inscriptions sont visibles par tous" on public.tournament_registrations;
+create policy "Les inscriptions sont visibles par tous"
+  on public.tournament_registrations for select using (true);
+
+drop policy if exists "Un joueur peut inscrire sa propre équipe" on public.tournament_registrations;
+create policy "Un joueur peut inscrire sa propre équipe"
+  on public.tournament_registrations for insert to authenticated
+  with check (auth.uid() = player_id);
+
+grant select on public.tournaments to anon, authenticated;
+grant select on public.tournament_registrations to anon, authenticated;
+grant insert on public.tournament_registrations to authenticated;
+
+insert into public.tournaments (slug, name, game_name, format, team_size, status, description, prize_label)
+values (
+  'cyber-strike-cup',
+  'Cyber Strike Cup',
+  'Cyber Strike',
+  'FPS · 5 contre 5',
+  5,
+  'open',
+  'Forme ton équipe et affronte les autres squads dans la première compétition NEXUS.',
+  'Récompense fictive : 50 000 FCFA'
+)
+on conflict (slug) do update set
+  name = excluded.name,
+  game_name = excluded.game_name,
+  format = excluded.format,
+  team_size = excluded.team_size,
+  status = excluded.status,
+  description = excluded.description,
+  prize_label = excluded.prize_label;
