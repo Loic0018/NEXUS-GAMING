@@ -74,7 +74,20 @@
 
   <footer class="footer"><a class="brand" href="#"><span class="brand-mark">N</span><span>NEXUS<span class="brand-accent">GAMING</span></span></a><span>© 2026 NEXUS GAMING. TOUS DROITS RÉSERVÉS.</span><a href="#home">RETOUR EN HAUT ↑</a></footer>
 
-  <dialog id="profileDialog" class="profile-dialog"><button class="dialog-close" id="closeDialog" aria-label="Fermer">×</button><div class="eyebrow">BIENVENUE DANS LE NEXUS</div><h2>ESPACE <span>JOUEUR.</span></h2><p>Les comptes joueurs arrivent bientôt. La première version du hub est en construction !</p><button class="button button-primary" id="gotIt">Compris</button></dialog>
+  <dialog id="profileDialog" class="profile-dialog auth-dialog"><button class="dialog-close" id="closeDialog" aria-label="Fermer">×</button>
+    <div class="eyebrow">BIENVENUE DANS LE NEXUS</div><h2 id="authTitle">ESPACE <span>JOUEUR.</span></h2>
+    <div id="authForms"><div class="auth-tabs"><button class="auth-tab active" data-mode="login" type="button">Connexion</button><button class="auth-tab" data-mode="signup" type="button">Créer un compte</button></div>
+      <form id="authForm"><label class="auth-field" id="usernameField" hidden>Pseudo joueur<input id="authUsername" type="text" minlength="3" maxlength="20" autocomplete="nickname" placeholder="Ton pseudo"></label>
+        <label class="auth-field">Adresse e-mail<input id="authEmail" type="email" autocomplete="email" required placeholder="joueur@email.com"></label>
+        <label class="auth-field">Mot de passe<input id="authPassword" type="password" minlength="8" autocomplete="current-password" required placeholder="8 caractères minimum"></label>
+        <button class="button button-primary auth-submit" id="authSubmit" type="submit">Se connecter <span>→</span></button>
+      </form><p class="auth-message" id="authMessage" role="status"></p>
+    </div>
+    <div id="playerProfile" hidden><div class="profile-avatar" id="profileAvatar">N</div><h3 id="profileName">Joueur NEXUS</h3><p id="profileEmail" class="profile-email"></p><p class="profile-level">NIVEAU 1 · NOUVEAU JOUEUR</p><button class="button button-ghost auth-submit" id="signOut" type="button">Se déconnecter</button></div>
+    <p class="auth-privacy">Tes identifiants sont gérés de manière sécurisée par Supabase. Ne partage jamais ton mot de passe.</p>
+  </dialog>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
