@@ -23,3 +23,12 @@
 .tournament-feedback{font-size:10px!important;color:var(--cyan)!important;line-height:1.5;margin:8px 0 0!important;min-height:0!important}
 .tournament-feedback.error{color:#ff8b9b!important}
 .tournament-join:disabled{opacity:.55;cursor:not-allowed}
+
+/* Composition des équipes du Cyber Strike Cup */
+.team-roster{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);text-align:left}
+.team-roster h4{font:800 17px 'Barlow Condensed';margin:0 0 10px}
+.team-roster .auth-field{font-size:9px}
+.team-roster input{width:100%;padding:11px;background:#090d19;border:1px solid var(--line);border-radius:4px;color:white;font:11px Inter}
+.team-roster input:focus{border-color:var(--purple);outline:none}
+.team-roster-summary{font-size:10px!important;color:var(--cyan)!important;margin:12px 0 4px!important}
+.team-roster-player{font-size:10px!important;margin:4px 0!important;color:#d6d9e4!important}
