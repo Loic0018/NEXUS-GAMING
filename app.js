@@ -185,4 +185,60 @@ document.getElementById("avatarInput").addEventListener("change", async event =>
 
 document.getElementById("menuToggle").addEventListener("click", () => document.querySelector(".main-nav").classList.toggle("open"));
 document.querySelectorAll(".main-nav a").forEach(link => link.addEventListener("click", () => document.querySelector(".main-nav").classList.remove("open")));
-document.querySelectorAll(".tournament-join").forEach(button => button.addEventListener("click", () => alert("Les inscriptions aux tournois NEXUS seront bientôt disponibles. Reste connecté !")));
+
+ 
+// Inscriptions au Cyber Strike Cup
+async function loadCyberCupRegistrations() {
+  const count = document.getElementById("cyberCupCount");
+  if (!supabaseClient) { count.textContent = "Connecte Supabase pour voir les inscriptions."; return; }
+  const {data:tournament,error:tournamentError} = await supabaseClient.from("tournaments").select("id,status").eq("slug","cyber-strike-cup").maybeSingle();
+  if (tournamentError || !tournament) { count.textContent = "Tournoi indisponible pour le moment."; return; }
+  const {count:total,error} = await supabaseClient.from("tournament_registrations").select("id",{count:"exact",head:true}).eq("tournament_id",tournament.id);
+  if (error) { count.textContent = "Nombre d'équipes indisponible."; return; }
+  count.textContent = (total || 0) + " équipe(s) inscrite(s)";
+  const button = document.getElementById("cyberCupJoin");
+  const status = document.getElementById("cyberCupStatus");
+  if (tournament.status !== "open") {
+    status.textContent = tournament.status === "completed" ? "TERMINÉ" : "INSCRIPTIONS FERMÉES";
+    button.disabled = true;
+    button.textContent = "Inscriptions fermées";
+  }
+}
+document.getElementById("cyberCupJoin").addEventListener("click", async () => {
+  const feedback = document.getElementById("cyberCupFeedback");
+  const button = document.getElementById("cyberCupJoin");
+  feedback.textContent = "";
+  feedback.classList.remove("error");
+  if (!supabaseClient) { feedback.textContent = "Le service Supabase n'est pas disponible."; feedback.classList.add("error"); return; }
+  button.disabled = true;
+  try {
+    const {data:{user},error:userError} = await supabaseClient.auth.getUser();
+    if (userError) throw userError;
+    if (!user) {
+      feedback.textContent = "Connecte-toi via « Espace joueur » avant d'inscrire ton équipe.";
+      document.getElementById("profileButton").click();
+      return;
+    }
+    const teamName = window.prompt("Quel est le nom de ton équipe ? (2 à 40 caractères)");
+    if (teamName === null) return;
+    const cleanName = teamName.trim();
+    if (cleanName.length < 2 || cleanName.length > 40) throw new Error("Le nom de l'équipe doit contenir entre 2 et 40 caractères.");
+    const {data:tournament,error:tournamentError} = await supabaseClient.from("tournaments").select("id,status").eq("slug","cyber-strike-cup").single();
+    if (tournamentError) throw tournamentError;
+    if (tournament.status !== "open") throw new Error("Les inscriptions à ce tournoi sont fermées.");
+    const {error} = await supabaseClient.from("tournament_registrations").insert({tournament_id:tournament.id,player_id:user.id,team_name:cleanName});
+    if (error) {
+      if (error.code === "23505") throw new Error("Tu as déjà inscrit une équipe à ce tournoi.");
+      throw error;
+    }
+    feedback.textContent = "Équipe inscrite ! Tu es enregistré comme capitaine. Les autres membres devront être ajoutés ensuite.";
+    await loadCyberCupRegistrations();
+  } catch(error) {
+    feedback.textContent = "Erreur : " + (error.message || "inscription impossible.");
+    feedback.classList.add("error");
+  } finally {
+    button.disabled = false;
+  }
+});
+loadCyberCupRegistrations();
+
