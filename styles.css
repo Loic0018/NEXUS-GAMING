@@ -32,3 +32,19 @@
 .team-roster input:focus{border-color:var(--purple);outline:none}
 .team-roster-summary{font-size:10px!important;color:var(--cyan)!important;margin:12px 0 4px!important}
 .team-roster-player{font-size:10px!important;margin:4px 0!important;color:#d6d9e4!important}
+
+
+/* Tableau de bord administrateur */
+.admin-section{padding-top:70px;padding-bottom:70px;border-top:1px solid var(--line)}
+.admin-section[hidden]{display:none!important}
+.admin-toolbar{display:flex;align-items:end;gap:14px;flex-wrap:wrap;padding:20px;background:#111522;border:1px solid var(--line);border-radius:5px}
+.admin-toolbar h3{font:800 22px 'Barlow Condensed';margin:0 0 6px}
+.admin-toolbar p,.admin-team-card p{font-size:10px;color:var(--muted);margin:5px 0}
+.admin-status-label{display:grid;gap:7px;margin-left:auto;color:var(--muted);font-size:9px}
+.admin-status-label select{background:#090d19;color:white;border:1px solid var(--line);border-radius:4px;padding:12px;font:11px Inter}
+.admin-feedback{font-size:10px;color:var(--cyan);min-height:18px}
+.admin-team-list{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.admin-team-card{background:#111522;border:1px solid var(--line);border-radius:5px;padding:17px}
+.admin-team-card h4{font:800 20px 'Barlow Condensed';margin:0 0 10px}
+.admin-team-card small{display:block;color:#7e8799;font-size:9px;margin-top:10px}
+@media(max-width:620px){.admin-team-list{grid-template-columns:1fr}.admin-status-label{margin-left:0;width:100%}.admin-status-label select{width:100%}.admin-toolbar>.button{width:100%}}
