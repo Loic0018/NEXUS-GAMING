@@ -96,3 +96,28 @@ create policy "Chaque joueur modifie sa photo"
 create policy "Chaque joueur supprime sa photo"
   on storage.objects for delete to authenticated
   using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+
+
+-- Sécurisation des résultats : les XP sont calculés par la base, jamais par le navigateur.
+create or replace function public.set_nexus_match_xp()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  new.xp_earned := case new.result
+    when 'Victoire' then 100
+    when 'Égalité' then 40
+    when 'Défaite' then 10
+  end;
+  return new;
+end;
+$$;
+
+drop trigger if exists nexus_set_match_xp_before_insert on public.game_history;
+create trigger nexus_set_match_xp_before_insert
+before insert on public.game_history
+for each row execute function public.set_nexus_match_xp();
+
+grant select, insert on table public.game_history to authenticated;
+grant select on table public.player_profiles to anon, authenticated;
