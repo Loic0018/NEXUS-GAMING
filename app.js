@@ -33,9 +33,20 @@ function setMode(mode) {
   authPassword.autocomplete = mode === "signup" ? "new-password" : "current-password";
   showMessage("");
 }
-function renderProfile(user) {
+async function ensurePlayerProfile(user) {
+  const preferredName = user.user_metadata?.username || user.email?.split("@")[0] || "Joueur";
+  const {data: existing, error: readError} = await supabaseClient
+    .from("player_profiles").select("id, username").eq("id", user.id).maybeSingle();
+  if (readError) throw readError;
+  if (existing) return existing;
+  const {data: created, error: insertError} = await supabaseClient
+    .from("player_profiles").insert({id: user.id, username: preferredName}).select("id, username").single();
+  if (insertError) throw insertError;
+  return created;
+}
+function renderProfile(user, profileUsername = null) {
   if (!user) { authForms.hidden = false; playerProfile.hidden = true; return; }
-  const name = user.user_metadata?.username || user.email?.split("@")[0] || "Joueur";
+  const name = profileUsername || user.user_metadata?.username || user.email?.split("@")[0] || "Joueur";
   document.getElementById("profileName").textContent = name;
   document.getElementById("profileEmail").textContent = user.email || "";
   document.getElementById("profileAvatar").textContent = name.slice(0,1).toUpperCase();
@@ -62,12 +73,18 @@ authForm.addEventListener("submit", async event => {
       if (username.length < 3) throw new Error("Choisis un pseudo d’au moins 3 caractères.");
       const {data,error} = await supabaseClient.auth.signUp({email,password,options:{data:{username}}});
       if (error) throw error;
-      if (data.session) { renderProfile(data.user); showMessage("Compte créé avec succès !"); }
+      if (data.session) {
+        const profile = await ensurePlayerProfile(data.user);
+        renderProfile(data.user, profile.username);
+        showMessage("Compte créé avec succès !");
+      }
       else showMessage("Compte créé. Vérifie ta boîte mail pour confirmer ton adresse avant de te connecter.");
     } else {
       const {data,error} = await supabaseClient.auth.signInWithPassword({email,password});
       if (error) throw error;
-      renderProfile(data.user); showMessage("Connexion réussie !");
+      const profile = await ensurePlayerProfile(data.user);
+      renderProfile(data.user, profile.username);
+      showMessage("Connexion réussie !");
     }
   } catch(error) { showMessage(error.message || "Une erreur est survenue.", true); }
   finally { submit.disabled = false; }
