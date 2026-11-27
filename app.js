@@ -21,7 +21,7 @@ const authPassword = document.getElementById("authPassword");
 let authMode = "login";
 let supabaseClient = null;
 const config = window.NEXUS_SUPABASE_CONFIG || {};
-if (window.supabase && config.url && config.anonKey && !config.url.includes("TON-PROJET")) {
+if (window.supabase && config.url && config.anonKey && !config.url.includes("TON-PROJET") && !config.anonKey.includes("TA_CLE")) {
   supabaseClient = window.supabase.createClient(config.url, config.anonKey);
 }
 function showMessage(message, isError=false) { authMessage.textContent = message; authMessage.classList.toggle("error", isError); }
