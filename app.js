@@ -190,6 +190,7 @@ document.querySelectorAll(".main-nav a").forEach(link => link.addEventListener("
 // Inscriptions au Cyber Strike Cup
 async function loadCyberCupRegistrations() {
   const count = document.getElementById("cyberCupCount");
+  const roster = document.getElementById("teamRoster");
   if (!supabaseClient) { count.textContent = "Connecte Supabase pour voir les inscriptions."; return; }
   const {data:tournament,error:tournamentError} = await supabaseClient.from("tournaments").select("id,status").eq("slug","cyber-strike-cup").maybeSingle();
   if (tournamentError || !tournament) { count.textContent = "Tournoi indisponible pour le moment."; return; }
@@ -203,6 +204,20 @@ async function loadCyberCupRegistrations() {
     button.disabled = true;
     button.textContent = "Inscriptions fermées";
   }
+  const {data:{user}} = await supabaseClient.auth.getUser();
+  if (user) {
+    const {data:mine,error:mineError} = await supabaseClient.from("tournament_registrations").select("id,team_name").eq("tournament_id",tournament.id).eq("player_id",user.id).maybeSingle();
+    if (!mineError && mine) {
+      roster.hidden = false;
+      document.getElementById("teamRosterTitle").textContent = "COMPOSITION — " + mine.team_name.toUpperCase();
+      const {data:members,error:membersError} = await supabaseClient.from("tournament_team_members").select("slot,player_name").eq("registration_id",mine.id).order("slot");
+      if (!membersError) {
+        members.forEach(member => { const input=document.querySelector('.team-member-input[data-slot="'+member.slot+'"]'); if(input) input.value=member.player_name; });
+        const list=document.getElementById("teamRosterList"); list.replaceChildren();
+        if(members.length){const heading=document.createElement("p");heading.className="team-roster-summary";heading.textContent="Joueurs enregistrés :";list.append(heading);members.forEach(member=>{const line=document.createElement("p");line.className="team-roster-player";line.textContent="Joueur "+(member.slot+1)+" · "+member.player_name;list.append(line);});}
+      }
+    }
+  } else { roster.hidden = true; }
 }
 document.getElementById("cyberCupJoin").addEventListener("click", async () => {
   const feedback = document.getElementById("cyberCupFeedback");
@@ -242,3 +257,44 @@ document.getElementById("cyberCupJoin").addEventListener("click", async () => {
 });
 loadCyberCupRegistrations();
 
+
+document.getElementById("teamRosterForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  const message = document.getElementById("cyberCupFeedback");
+  const submit = document.getElementById("saveTeamRoster");
+  const inputs = [...document.querySelectorAll(".team-member-input")];
+  const names = inputs.map(input => input.value.trim());
+  message.textContent = "";
+  message.classList.remove("error");
+  if (names.some(name => name.length < 2 || name.length > 24)) {
+    message.textContent = "Chaque pseudo doit contenir entre 2 et 24 caractères.";
+    message.classList.add("error");
+    return;
+  }
+  if (new Set(names.map(name => name.toLowerCase())).size !== 4) {
+    message.textContent = "Chaque joueur doit avoir un pseudo différent.";
+    message.classList.add("error");
+    return;
+  }
+  submit.disabled = true;
+  message.textContent = "Enregistrement de l'équipe…";
+  try {
+    const {data:{user},error:userError} = await supabaseClient.auth.getUser();
+    if (userError) throw userError;
+    if (!user) throw new Error("Reconnecte-toi pour modifier ton équipe.");
+    const {data:tournament,error:tournamentError} = await supabaseClient.from("tournaments").select("id").eq("slug","cyber-strike-cup").single();
+    if (tournamentError) throw tournamentError;
+    const {data:registration,error:registrationError} = await supabaseClient.from("tournament_registrations").select("id").eq("tournament_id",tournament.id).eq("player_id",user.id).single();
+    if (registrationError) throw registrationError;
+    const rows = names.map((player_name,index)=>({registration_id:registration.id,slot:index+1,player_name}));
+    const {error:saveError} = await supabaseClient.from("tournament_team_members").upsert(rows,{onConflict:"registration_id,slot"});
+    if (saveError) throw saveError;
+    message.textContent = "Les 4 joueurs ont été enregistrés ! Ton équipe compte maintenant 5 membres avec toi comme capitaine.";
+    await loadCyberCupRegistrations();
+  } catch(error) {
+    message.textContent = "Erreur : " + (error.message || "enregistrement impossible.");
+    message.classList.add("error");
+  } finally {
+    submit.disabled = false;
+  }
+});
