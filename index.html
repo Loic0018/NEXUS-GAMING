@@ -86,6 +86,27 @@
       <h3 id="profileName">Joueur NEXUS</h3><p id="profileEmail" class="profile-email"></p>
       <form id="profileEditForm" class="profile-edit-form"><label class="auth-field">Mon pseudo<input id="profileUsername" type="text" minlength="3" maxlength="20" required></label><button class="button button-ghost auth-submit" type="submit">Enregistrer le pseudo</button></form>
       <div class="player-stat-grid"><div><strong id="statXp">0</strong><span>XP</span></div><div><strong id="statMatches">0</strong><span>MATCHS</span></div><div><strong id="statWins">0</strong><span>VICTOIRES</span></div></div>
+      <div class="profile-history"><h4>ENREGISTRER UNE PARTIE</h4>
+        <form id="matchForm" class="profile-edit-form">
+          <label class="auth-field">Jeu
+            <select id="matchGame" required>
+              <option value="Cyber Strike">Cyber Strike</option>
+              <option value="Street Legends">Street Legends</option>
+              <option value="Last Zone">Last Zone</option>
+              <option value="Shadow Protocol">Shadow Protocol</option>
+              <option value="Autre jeu">Autre jeu</option>
+            </select>
+          </label>
+          <label class="auth-field">Résultat
+            <select id="matchResult" required>
+              <option value="Victoire">Victoire</option>
+              <option value="Égalité">Égalité</option>
+              <option value="Défaite">Défaite</option>
+            </select>
+          </label>
+          <button class="button button-primary auth-submit" type="submit" id="matchSubmit">Enregistrer le résultat</button>
+        </form>
+      </div>
       <div class="profile-history"><h4>HISTORIQUE DES PARTIES</h4><div id="matchHistory"><p class="history-empty">Aucune partie enregistrée pour le moment.</p></div></div>
       <p class="auth-message" id="profileMessage" role="status"></p>
       <button class="button button-ghost auth-submit" id="signOut" type="button">Se déconnecter</button>
