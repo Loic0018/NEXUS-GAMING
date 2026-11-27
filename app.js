@@ -120,7 +120,7 @@ document.getElementById("signOut").addEventListener("click", async () => {
   if (error) { showMessage(error.message,true); return; }
   setMode("login"); renderProfile(null); showMessage("Tu es déconnecté.");
 });
-if(supabaseClient){supabaseClient.auth.onAuthStateChange((_event,session)=>{if(dialog.open&&!session?.user)renderProfile(null);});loadLiveRanking();}
+if(supabaseClient){supabaseClient.auth.onAuthStateChange((_event,session)=>{if(dialog.open&&!session?.user)renderProfile(null);loadCyberCupRegistrations();});loadLiveRanking();}
 document.getElementById("matchForm").addEventListener("submit", async event => {
   event.preventDefault();
   const message = document.getElementById("profileMessage");
