@@ -1,7 +1,6 @@
 // Configuration publique Supabase pour NEXUS-GAMING.
-// Remplace ces deux valeurs par celles de ton projet Supabase.
-// Utilise uniquement la clé anon/public. Ne mets JAMAIS une clé service_role ici.
+// La clé publishable est destinée à être utilisée dans le navigateur.
 window.NEXUS_SUPABASE_CONFIG = {
-  url: "https://TON-PROJET.supabase.co",
-  anonKey: "TA_CLE_ANON_PUBLIQUE"
+  url: "https://vzbtzsadmyuididcujag.supabase.co",
+  anonKey: "sb_publishable_vSP60EkqBOg6MB4pec2DBg_vXKGBRx-"
 };
