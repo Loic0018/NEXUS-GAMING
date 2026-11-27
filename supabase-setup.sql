@@ -221,3 +221,50 @@ create policy "Le capitaine gère sa composition"
 
 grant select on public.tournament_team_members to anon, authenticated;
 grant insert, update, delete on public.tournament_team_members to authenticated;
+
+-- Espace administrateur NEXUS-GAMING
+-- Attribution du rôle uniquement depuis l'éditeur SQL Supabase.
+create table if not exists public.nexus_admins (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+
+alter table public.nexus_admins enable row level security;
+
+drop policy if exists "Un administrateur voit son propre rôle" on public.nexus_admins;
+create policy "Un administrateur voit son propre rôle"
+  on public.nexus_admins for select to authenticated
+  using (user_id = auth.uid());
+
+grant select on public.nexus_admins to authenticated;
+
+create or replace function public.is_nexus_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.nexus_admins
+    where user_id = auth.uid()
+  );
+$$;
+
+revoke all on function public.is_nexus_admin() from public;
+grant execute on function public.is_nexus_admin() to authenticated;
+
+drop policy if exists "Seul un admin peut modifier le statut des tournois" on public.tournaments;
+create policy "Seul un admin peut modifier le statut des tournois"
+  on public.tournaments for update to authenticated
+  using (public.is_nexus_admin())
+  with check (public.is_nexus_admin());
+
+grant update (status) on public.tournaments to authenticated;
+
+-- Attribution du rôle à l'adresse communiquée par le propriétaire du site.
+insert into public.nexus_admins (user_id)
+select id
+from auth.users
+where lower(email) = lower('ydjigbenou66@gmail.com')
+on conflict (user_id) do nothing;
