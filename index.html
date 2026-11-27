@@ -60,12 +60,9 @@
       <div class="section-heading"><div><div class="eyebrow">LES JOUEURS À SUIVRE</div><h2>TOP <span>PLAYERS.</span></h2></div><span class="demo-note">CLASSEMENT EXEMPLE</span></div>
       <div class="ranking-panel">
         <div class="ranking-header"><span>POSITION / JOUEUR</span><span>JEU FAVORI</span><span>POINTS XP</span></div>
-        <div class="rank-row"><div class="rank-player"><b class="rank-number first">01</b><span class="avatar avatar-purple">K</span><span><strong>KRYPTON</strong><small>Elite player</small></span></div><span class="rank-game">Cyber Strike</span><strong class="rank-points">9 840 XP</strong></div>
-        <div class="rank-row"><div class="rank-player"><b class="rank-number">02</b><span class="avatar avatar-blue">N</span><span><strong>NOVA</strong><small>Pro player</small></span></div><span class="rank-game">Last Zone</span><strong class="rank-points">9 210 XP</strong></div>
-        <div class="rank-row"><div class="rank-player"><b class="rank-number">03</b><span class="avatar avatar-pink">Z</span><span><strong>ZEPHYR</strong><small>Rising star</small></span></div><span class="rank-game">Street Legends</span><strong class="rank-points">8 760 XP</strong></div>
-        <div class="rank-row"><div class="rank-player"><b class="rank-number">04</b><span class="avatar avatar-green">V</span><span><strong>VORTEX</strong><small>Challenger</small></span></div><span class="rank-game">Cyber Strike</span><strong class="rank-points">8 120 XP</strong></div>
+        <div id="liveRanking"><p class="ranking-empty">Chargement du classement…</p></div>
       </div>
-      <p class="fine-print">Profils et scores fictifs : le classement réel sera connecté aux comptes joueurs dans une prochaine étape.</p>
+      <p class="fine-print">Classement calculé à partir des XP enregistrés dans les profils NEXUS.</p>
     </section>
         <section class="feature-band" id="tournaments-promo"><div class="wrap feature-content"><div><div class="eyebrow">LA COMPÉTITION T'ATTEND</div><h2>TON NOM.<br><span>TON HISTOIRE.</span></h2><p>Prépare ton équipe, relève les défis et grimpe dans les classements NEXUS.</p><a class="button button-primary" href="#community">Rejoindre la communauté <span>→</span></a></div><div class="trophy-art"><div class="trophy-glow"></div><div class="trophy">🏆</div><div class="trophy-caption">NEXT CHAMPION<br><b>COULD BE YOU</b></div></div></div></section>
 
@@ -83,7 +80,16 @@
         <button class="button button-primary auth-submit" id="authSubmit" type="submit">Se connecter <span>→</span></button>
       </form><p class="auth-message" id="authMessage" role="status"></p>
     </div>
-    <div id="playerProfile" hidden><div class="profile-avatar" id="profileAvatar">N</div><h3 id="profileName">Joueur NEXUS</h3><p id="profileEmail" class="profile-email"></p><p class="profile-level">NIVEAU 1 · NOUVEAU JOUEUR</p><button class="button button-ghost auth-submit" id="signOut" type="button">Se déconnecter</button></div>
+    <div id="playerProfile" hidden>
+      <div class="profile-avatar-wrap"><img class="profile-avatar" id="profileAvatar" alt="Photo de profil" hidden><div class="profile-avatar profile-avatar-fallback" id="profileAvatarFallback">N</div></div>
+      <label class="avatar-upload">Changer ma photo<input id="avatarInput" type="file" accept="image/png,image/jpeg,image/webp"></label>
+      <h3 id="profileName">Joueur NEXUS</h3><p id="profileEmail" class="profile-email"></p>
+      <form id="profileEditForm" class="profile-edit-form"><label class="auth-field">Mon pseudo<input id="profileUsername" type="text" minlength="3" maxlength="20" required></label><button class="button button-ghost auth-submit" type="submit">Enregistrer le pseudo</button></form>
+      <div class="player-stat-grid"><div><strong id="statXp">0</strong><span>XP</span></div><div><strong id="statMatches">0</strong><span>MATCHS</span></div><div><strong id="statWins">0</strong><span>VICTOIRES</span></div></div>
+      <div class="profile-history"><h4>HISTORIQUE DES PARTIES</h4><div id="matchHistory"><p class="history-empty">Aucune partie enregistrée pour le moment.</p></div></div>
+      <p class="auth-message" id="profileMessage" role="status"></p>
+      <button class="button button-ghost auth-submit" id="signOut" type="button">Se déconnecter</button>
+    </div>
     <p class="auth-privacy">Tes identifiants sont gérés de manière sécurisée par Supabase. Ne partage jamais ton mot de passe.</p>
   </dialog>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
