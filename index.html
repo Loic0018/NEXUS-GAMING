@@ -15,7 +15,7 @@
   <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
   <header class="topbar">
     <a class="brand" href="#"><span class="brand-mark">N</span><span>NEXUS<span class="brand-accent">GAMING</span></span></a>
-    <nav class="main-nav"><a class="active" href="#home">Accueil</a><a href="#games">Jeux</a><a href="#community">Communauté</a><a href="#tournaments">Tournois</a></nav>
+    <nav class="main-nav"><a class="active" href="#home">Accueil</a><a href="#games">Jeux</a><a href="#community">Communauté</a><a href="#tournaments">Tournois</a><a href="#ranking">Classement</a></nav>
     <button class="profile-button" id="profileButton"><span class="online-dot"></span> Espace joueur <span>↗</span></button>
     <button class="menu-toggle" id="menuToggle" aria-label="Ouvrir le menu">☰</button>
   </header>
@@ -46,7 +46,28 @@
       <p class="empty-state" id="emptyState" hidden>Aucun jeu ne correspond à ta recherche.</p>
     </section>
 
-    <section class="feature-band" id="tournaments"><div class="wrap feature-content"><div><div class="eyebrow">LA COMPÉTITION T'ATTEND</div><h2>TON NOM.<br><span>TON HISTOIRE.</span></h2><p>Prépare ton équipe, relève les défis et grimpe dans les classements NEXUS.</p><a class="button button-primary" href="#community">Rejoindre la communauté <span>→</span></a></div><div class="trophy-art"><div class="trophy-glow"></div><div class="trophy">🏆</div><div class="trophy-caption">NEXT CHAMPION<br><b>COULD BE YOU</b></div></div></div></section>
+
+    <section class="tournaments-section section wrap" id="tournaments">
+      <div class="section-heading"><div><div class="eyebrow">PASSE AU NIVEAU SUPÉRIEUR</div><h2>TOURNOIS <span>À VENIR.</span></h2></div><span class="demo-note">ÉVÉNEMENTS DE DÉMONSTRATION</span></div>
+      <div class="tournament-grid">
+        <article class="tournament-card"><div class="tournament-top"><span class="tournament-type">FPS · 5V5</span><span class="tournament-status">INSCRIPTIONS OUVERTES</span></div><div class="tournament-icon">⚡</div><h3>CYBER STRIKE CUP</h3><p>Affronte les meilleures équipes sur le champ de bataille.</p><div class="tournament-meta"><span>Équipes de 5</span><span>Récompense fictive : 50 000 FCFA</span></div><button class="button button-primary tournament-join" type="button">Inscriptions bientôt</button></article>
+        <article class="tournament-card"><div class="tournament-top"><span class="tournament-type">FOOTBALL · 1V1</span><span class="tournament-status status-soon">BIENTÔT</span></div><div class="tournament-icon">⚽</div><h3>STREET LEGENDS OPEN</h3><p>Un duel, un terrain, un seul champion. À toi de jouer.</p><div class="tournament-meta"><span>Solo</span><span>Récompense à définir</span></div><button class="button button-ghost tournament-join" type="button">Inscriptions bientôt</button></article>
+        <article class="tournament-card"><div class="tournament-top"><span class="tournament-type">BATTLE ROYALE</span><span class="tournament-status status-soon">BIENTÔT</span></div><div class="tournament-icon">☄️</div><h3>LAST ZONE SURVIVAL</h3><p>Survis à tes adversaires et sois le dernier debout.</p><div class="tournament-meta"><span>Duo</span><span>Récompense à définir</span></div><button class="button button-ghost tournament-join" type="button">Inscriptions bientôt</button></article>
+      </div>
+      <p class="fine-print">Événements et récompenses présentés à titre illustratif. Aucune inscription réelle n'est encore ouverte.</p>
+    </section>
+    <section class="ranking-section wrap" id="ranking">
+      <div class="section-heading"><div><div class="eyebrow">LES JOUEURS À SUIVRE</div><h2>TOP <span>PLAYERS.</span></h2></div><span class="demo-note">CLASSEMENT EXEMPLE</span></div>
+      <div class="ranking-panel">
+        <div class="ranking-header"><span>POSITION / JOUEUR</span><span>JEU FAVORI</span><span>POINTS XP</span></div>
+        <div class="rank-row"><div class="rank-player"><b class="rank-number first">01</b><span class="avatar avatar-purple">K</span><span><strong>KRYPTON</strong><small>Elite player</small></span></div><span class="rank-game">Cyber Strike</span><strong class="rank-points">9 840 XP</strong></div>
+        <div class="rank-row"><div class="rank-player"><b class="rank-number">02</b><span class="avatar avatar-blue">N</span><span><strong>NOVA</strong><small>Pro player</small></span></div><span class="rank-game">Last Zone</span><strong class="rank-points">9 210 XP</strong></div>
+        <div class="rank-row"><div class="rank-player"><b class="rank-number">03</b><span class="avatar avatar-pink">Z</span><span><strong>ZEPHYR</strong><small>Rising star</small></span></div><span class="rank-game">Street Legends</span><strong class="rank-points">8 760 XP</strong></div>
+        <div class="rank-row"><div class="rank-player"><b class="rank-number">04</b><span class="avatar avatar-green">V</span><span><strong>VORTEX</strong><small>Challenger</small></span></div><span class="rank-game">Cyber Strike</span><strong class="rank-points">8 120 XP</strong></div>
+      </div>
+      <p class="fine-print">Profils et scores fictifs : le classement réel sera connecté aux comptes joueurs dans une prochaine étape.</p>
+    </section>
+        <section class="feature-band" id="tournaments-promo"><div class="wrap feature-content"><div><div class="eyebrow">LA COMPÉTITION T'ATTEND</div><h2>TON NOM.<br><span>TON HISTOIRE.</span></h2><p>Prépare ton équipe, relève les défis et grimpe dans les classements NEXUS.</p><a class="button button-primary" href="#community">Rejoindre la communauté <span>→</span></a></div><div class="trophy-art"><div class="trophy-glow"></div><div class="trophy">🏆</div><div class="trophy-caption">NEXT CHAMPION<br><b>COULD BE YOU</b></div></div></div></section>
 
     <section class="community wrap" id="community"><div class="community-icon">◈</div><div><div class="eyebrow">PLUS QU'UN JEU, UNE COMMUNAUTÉ</div><h2>ON SE RETROUVE <span>EN LIGNE.</span></h2><p>Les meilleurs moments se vivent ensemble. Invite tes amis et construis ta team.</p></div><a class="button button-ghost" href="mailto:hello@nexusgaming.example">Nous contacter ↗</a></section>
   </main>
